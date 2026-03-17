@@ -1,13 +1,8 @@
 const Movie = require('../models/Movie');
 
-// @desc    Get all movies (or filter by country)
-// @route   GET /api/movies
-// @access  Public
 const getMovies = async (req, res) => {
   try {
-    // If the frontend asks for a specific country, filter by it
     const filter = req.query.country ? { africanCountry: req.query.country } : {};
-    
     const movies = await Movie.find(filter);
     res.json(movies);
   } catch (error) {
@@ -16,9 +11,6 @@ const getMovies = async (req, res) => {
   }
 };
 
-// @desc    Get a single movie by ID
-// @route   GET /api/movies/:id
-// @access  Public
 const getMovieById = async (req, res) => {
   try {
     const movie = await Movie.findById(req.params.id);
@@ -33,4 +25,28 @@ const getMovieById = async (req, res) => {
   }
 };
 
-module.exports = { getMovies, getMovieById };
+// @desc    Create a new movie
+// @route   POST /api/movies
+// @access  Private (Requires login)
+const createMovie = async (req, res) => {
+  try {
+    const { title, africanCountry, director, releaseYear, genres, description } = req.body;
+
+    const movie = new Movie({
+      title,
+      africanCountry,
+      director,
+      releaseYear,
+      genres,
+      description
+    });
+
+    const createdMovie = await movie.save();
+    res.status(201).json(createdMovie);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: 'Invalid movie data received' });
+  }
+};
+
+module.exports = { getMovies, getMovieById, createMovie };
