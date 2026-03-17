@@ -1,18 +1,11 @@
 const Review = require('../models/Review');
 
-// @desc    Get reviews for a specific movie or book
-// @route   GET /api/reviews
-// @access  Public
 const getReviews = async (req, res) => {
   try {
     const filter = {};
-    
-    // Check if the frontend is asking for movie reviews or book reviews
     if (req.query.movieId) filter.movie = req.query.movieId;
     if (req.query.bookId) filter.book = req.query.bookId;
 
-    // .populate() grabs the username of the person who wrote it
-    // .sort({ createdAt: -1 }) shows the newest reviews first
     const reviews = await Review.find(filter)
       .populate('user', 'username')
       .sort({ createdAt: -1 });
@@ -24,4 +17,32 @@ const getReviews = async (req, res) => {
   }
 };
 
-module.exports = { getReviews };
+// @desc    Create a new review
+// @route   POST /api/reviews
+// @access  Private (Requires login)
+const createReview = async (req, res) => {
+  try {
+    const { movieId, bookId, rating, comment } = req.body;
+
+    // Ensure the user is reviewing *something*
+    if (!movieId && !bookId) {
+      return res.status(400).json({ message: 'Please provide a movie or book to review' });
+    }
+
+    const review = new Review({
+      user: req.user._id, // Securely grabbed from the logged-in user's token
+      movie: movieId || null,
+      book: bookId || null,
+      rating,
+      comment
+    });
+
+    const createdReview = await review.save();
+    res.status(201).json(createdReview);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: 'Invalid review data received' });
+  }
+};
+
+module.exports = { getReviews, createReview };
