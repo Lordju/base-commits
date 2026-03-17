@@ -1,0 +1,28 @@
+# Node.js
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependency directories
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# IDE folders
+.idea/
+.vscode/
+
+# Build directories
+/dist/
+/build/
+
+# Testing directories
+/coverage/
+/ test/
