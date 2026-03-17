@@ -1,13 +1,8 @@
 const Book = require('../models/Book');
 
-// @desc    Get all books (or filter by country)
-// @route   GET /api/books
-// @access  Public
 const getBooks = async (req, res) => {
   try {
-    // If the frontend asks for a specific country, filter by it
     const filter = req.query.country ? { africanCountry: req.query.country } : {};
-    
     const books = await Book.find(filter);
     res.json(books);
   } catch (error) {
@@ -16,9 +11,6 @@ const getBooks = async (req, res) => {
   }
 };
 
-// @desc    Get a single book by ID
-// @route   GET /api/books/:id
-// @access  Public
 const getBookById = async (req, res) => {
   try {
     const book = await Book.findById(req.params.id);
@@ -33,4 +25,28 @@ const getBookById = async (req, res) => {
   }
 };
 
-module.exports = { getBooks, getBookById };
+// @desc    Create a new book
+// @route   POST /api/books
+// @access  Private (Requires login)
+const createBook = async (req, res) => {
+  try {
+    const { title, author, africanCountry, publicationYear, genres, description } = req.body;
+
+    const book = new Book({
+      title,
+      author,
+      africanCountry,
+      publicationYear,
+      genres,
+      description
+    });
+
+    const createdBook = await book.save();
+    res.status(201).json(createdBook);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: 'Invalid book data received' });
+  }
+};
+
+module.exports = { getBooks, getBookById, createBook };
